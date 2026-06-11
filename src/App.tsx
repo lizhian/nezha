@@ -44,6 +44,7 @@ import { APP_PLATFORM } from "./platform";
 import { useTerminalManager } from "./hooks/useTerminalManager";
 import { useWorktreeDiffStats } from "./hooks/useWorktreeDiffStats";
 import { useI18n } from "./i18n";
+import { normalizeCssFontFamily } from "./utils/fonts";
 import s from "./styles";
 import "./App.css";
 
@@ -177,7 +178,7 @@ function getInitialAttentionBadge(): boolean {
 
 function getInitialFontFamily(key: string, fallback: FontFamily): FontFamily {
   const stored = localStorage.getItem(key);
-  return stored || fallback;
+  return normalizeCssFontFamily(stored || fallback);
 }
 
 function App() {
@@ -356,13 +357,13 @@ function App() {
   }, [attentionBadge]);
 
   useEffect(() => {
-    const value = uiFontFamily.trim() || DEFAULT_UI_FONT;
+    const value = normalizeCssFontFamily(uiFontFamily.trim() || DEFAULT_UI_FONT);
     localStorage.setItem("nezha:uiFontFamily", value);
     document.documentElement.style.setProperty("--font-ui", value);
   }, [uiFontFamily]);
 
   useEffect(() => {
-    const value = monoFontFamily.trim() || DEFAULT_MONO_FONT;
+    const value = normalizeCssFontFamily(monoFontFamily.trim() || DEFAULT_MONO_FONT);
     localStorage.setItem("nezha:monoFontFamily", value);
     document.documentElement.style.setProperty("--font-mono", value);
   }, [monoFontFamily]);
