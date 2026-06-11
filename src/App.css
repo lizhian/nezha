@@ -305,6 +305,11 @@ body {
   --xterm-scrollbar-thumb-hover: rgba(148, 158, 176, 0.68);
 }
 
+.nezha-xterm-host:not(.nezha-shell-xterm-host) .xterm-screen {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .nezha-xterm-host.nezha-shell-xterm-host {
   --xterm-scrollbar-edge-offset: 6px;
 }
