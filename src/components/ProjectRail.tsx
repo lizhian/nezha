@@ -3,8 +3,11 @@ import { Plus, ChevronsRight, Search, PinOff } from "lucide-react";
 import type { Project, Task } from "../types";
 import { ProjectAvatar } from "./ProjectAvatar";
 import { useI18n } from "../i18n";
+import { APP_PLATFORM } from "../platform";
 import s from "../styles";
 import claudeWaveGif from "../assets/gif/claude-wave.gif";
+
+const MAC_TRAFFIC_LIGHT_SAFE_TOP = 26;
 
 type ProjectStatus = "attention" | "running" | null;
 
@@ -383,7 +386,7 @@ export function ProjectRail({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        paddingTop: 10,
+        paddingTop: APP_PLATFORM === "macos" ? MAC_TRAFFIC_LIGHT_SAFE_TOP : 10,
         paddingBottom: 10,
         gap: 5,
         overflow: "visible",
