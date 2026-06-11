@@ -28,7 +28,10 @@ import { OPEN_APP_SETTINGS_EVENT } from "./app-settings/types";
 import { TimelineView } from "./TimelineView";
 import { SkillHubView } from "./skill-hub/SkillHubView";
 import { useI18n, pluralKey } from "../i18n";
+import { APP_PLATFORM } from "../platform";
 import s from "../styles";
+
+const MAC_TRAFFIC_LIGHT_SAFE_TOP = 34;
 
 function SidebarItem({
   icon,
@@ -154,7 +157,12 @@ export function WelcomePage({
   return (
     <div style={s.welcomeBody}>
       <div style={s.welcomeMain}>
-        <div style={s.sidebar}>
+        <div
+          style={{
+            ...s.sidebar,
+            paddingTop: APP_PLATFORM === "macos" ? MAC_TRAFFIC_LIGHT_SAFE_TOP : 18,
+          }}
+        >
           <div style={s.sidebarBrand}>
             <div style={s.sidebarBrandIcon}>
               <span style={s.sidebarBrandBadge}>NZ</span>
