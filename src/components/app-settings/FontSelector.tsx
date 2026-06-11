@@ -5,7 +5,13 @@ import type React from "react";
 import type { FontFamily } from "../../types";
 import { useI18n } from "../../i18n";
 import s from "../../styles";
-import { loadSystemFonts, parseFirstFontName, filterFonts } from "../../utils/fonts";
+import {
+  loadSystemFonts,
+  parseFirstFontName,
+  filterFonts,
+  normalizeCssFontFamily,
+  quoteCssFontFamilyName,
+} from "../../utils/fonts";
 
 const FONT_ITEM_HEIGHT = 32;
 const FONT_LIST_HEIGHT = 280;
@@ -76,7 +82,7 @@ export function FontSelector({ value, onChange, label, hint, defaultFont, previe
 
   const handleSelect = useCallback(
     (font: string) => {
-      onChange(font);
+      onChange(quoteCssFontFamilyName(font));
       setOpen(false);
       setSearch("");
     },
@@ -135,7 +141,7 @@ export function FontSelector({ value, onChange, label, hint, defaultFont, previe
               style={s.fontSelectorTrigger}
             >
               <span
-                style={{ ...s.fontSelectorTriggerContent, fontFamily: value }}
+                style={{ ...s.fontSelectorTriggerContent, fontFamily: normalizeCssFontFamily(value) }}
               >
                 {displayName || t("fontSelector.notAvailable")}
               </span>
@@ -197,7 +203,7 @@ export function FontSelector({ value, onChange, label, hint, defaultFont, previe
                           style={{
                             top: index * FONT_ITEM_HEIGHT,
                             height: FONT_ITEM_HEIGHT,
-                            fontFamily: selected ? font : undefined,
+                            fontFamily: selected ? quoteCssFontFamilyName(font) : undefined,
                             background: focusedIndex === index
                               ? "var(--bg-hover)"
                               : selected

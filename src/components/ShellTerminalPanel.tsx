@@ -111,7 +111,7 @@ const ShellTerminalInstance = forwardRef<ShellTerminalInstanceHandle, {
       fitAddonRef.current = fitAddon;
       term.open(container);
       const disposeInputFix = attachMacWebKitShiftInputFix(term);
-      loadWebglAddon(term);
+      const webglAddon = loadWebglAddon(term, container);
       const writer = createSmartWriter(term);
       const disposeMacWebKitGuard = attachMacWebKitTerminalGuard({ term, container, writer });
 
@@ -203,6 +203,7 @@ const ShellTerminalInstance = forwardRef<ShellTerminalInstanceHandle, {
         document.removeEventListener("visibilitychange", handleVisibilityChange);
         terminalRef.current = null;
         fitAddonRef.current = null;
+        webglAddon.dispose();
         disposeMacWebKitGuard();
         disposeInputFix();
         term.dispose();
