@@ -18,6 +18,7 @@ import {
   safeFit,
   createSmartWriter,
   attachMacWebKitTerminalGuard,
+  attachTerminalScrollbarAutoHide,
   applyTerminalFontSize,
   applyTerminalFontFamily,
 } from "./terminalShared";
@@ -98,6 +99,7 @@ export function TerminalView({
     const serializeAddon = new SerializeAddon();
     term.loadAddon(serializeAddon);
     term.open(container);
+    const disposeScrollbarAutoHide = attachTerminalScrollbarAutoHide(term, container);
     const disposeInputFix = attachMacWebKitShiftInputFix(term);
     const webglAddon = loadWebglAddon(term, container);
 
@@ -184,6 +186,7 @@ export function TerminalView({
       onRegisterRef.current(null);
       fitAddonRef.current = null;
       webglAddon.dispose();
+      disposeScrollbarAutoHide();
       disposeMacWebKitGuard();
       disposeInputFix();
       disposeSmartCopy();
