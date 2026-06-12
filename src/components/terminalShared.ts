@@ -327,6 +327,41 @@ interface TerminalMetricsCore {
 
 const DOM_MEASURE_REPEAT = 32;
 
+interface TerminalFontRefreshState {
+  generation: number;
+  frameIds: number[];
+  timerIds: number[];
+}
+
+const terminalFontRefreshState = new WeakMap<Terminal, TerminalFontRefreshState>();
+
+function getTerminalOwnerWindow(term: Terminal): Window {
+  return term.element?.ownerDocument.defaultView ?? window;
+}
+
+function getTerminalFontRefreshState(term: Terminal): TerminalFontRefreshState {
+  let state = terminalFontRefreshState.get(term);
+  if (!state) {
+    state = { generation: 0, frameIds: [], timerIds: [] };
+    terminalFontRefreshState.set(term, state);
+  }
+  return state;
+}
+
+function cancelPendingFontRefresh(term: Terminal): TerminalFontRefreshState {
+  const ownerWindow = getTerminalOwnerWindow(term);
+  const state = getTerminalFontRefreshState(term);
+  for (const frameId of state.frameIds) {
+    ownerWindow.cancelAnimationFrame(frameId);
+  }
+  for (const timerId of state.timerIds) {
+    ownerWindow.clearTimeout(timerId);
+  }
+  state.frameIds = [];
+  state.timerIds = [];
+  return state;
+}
+
 function measureTerminalFontWithDom(
   term: Terminal,
   container: HTMLElement,
@@ -344,8 +379,9 @@ function measureTerminalFontWithDom(
   measure.style.fontWeight = String(term.options.fontWeight ?? "normal");
   container.appendChild(measure);
 
-  const width = measure.offsetWidth / DOM_MEASURE_REPEAT;
-  const height = measure.offsetHeight;
+  const rect = measure.getBoundingClientRect();
+  const width = rect.width / DOM_MEASURE_REPEAT;
+  const height = rect.height;
   measure.remove();
 
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
@@ -433,13 +469,21 @@ function waitForTerminalFontReady(term: Terminal): Promise<void> {
   return Promise.race([ready, timeout]);
 }
 
-export function refreshTerminalFontAtlasAfterFontReady(term: Terminal): void {
-  const ownerDocument = term.element?.ownerDocument ?? document;
-  const ownerWindow = ownerDocument.defaultView ?? window;
+export function refreshTerminalFontAtlasAfterFontReady(
+  term: Terminal,
+  container?: HTMLElement,
+): void {
+  const ownerWindow = getTerminalOwnerWindow(term);
+  const state = cancelPendingFontRefresh(term);
+  const generation = state.generation + 1;
+  state.generation = generation;
 
   const refreshAtlas = () => {
     if (!term.element || term.rows <= 0) return;
     try {
+      if (container?.isConnected) {
+        syncTerminalFontMetrics(term, container);
+      }
       term.clearTextureAtlas();
       term.refresh(0, term.rows - 1);
     } catch {
@@ -448,13 +492,22 @@ export function refreshTerminalFontAtlasAfterFontReady(term: Terminal): void {
   };
 
   void waitForTerminalFontReady(term).finally(() => {
-    ownerWindow.requestAnimationFrame(() => {
-      ownerWindow.requestAnimationFrame(() => {
+    if (state.generation !== generation || !term.element) return;
+    const frameId = ownerWindow.requestAnimationFrame(() => {
+      if (state.generation !== generation || !term.element) return;
+      const nestedFrameId = ownerWindow.requestAnimationFrame(() => {
+        if (state.generation !== generation || !term.element) return;
         for (const delay of FONT_ATLAS_REFRESH_DELAYS_MS) {
-          ownerWindow.setTimeout(refreshAtlas, delay);
+          const timerId = ownerWindow.setTimeout(() => {
+            if (state.generation !== generation || !term.element) return;
+            refreshAtlas();
+          }, delay);
+          state.timerIds.push(timerId);
         }
       });
+      state.frameIds.push(nestedFrameId);
     });
+    state.frameIds.push(frameId);
   });
 }
 
@@ -614,7 +667,7 @@ export function loadWebglAddon(term: Terminal, container?: HTMLElement): WebglAd
             webglAddon = null;
           });
           term.loadAddon(webglAddon);
-          refreshTerminalFontAtlasAfterFontReady(term);
+          refreshTerminalFontAtlasAfterFontReady(term, container);
         } catch (err) {
           console.warn("[terminal] WebGL addon unavailable; using xterm DOM renderer", err);
           /* 不支持 WebGL 时降级，不影响功能 */
@@ -626,6 +679,7 @@ export function loadWebglAddon(term: Terminal, container?: HTMLElement): WebglAd
   return {
     dispose: () => {
       disposed = true;
+      cancelPendingFontRefresh(term);
       webglAddon?.dispose();
       webglAddon = null;
     },
@@ -664,7 +718,10 @@ export function safeFit(
     if (dims.cols < 2 || dims.rows < 2) return null;
     fitAddon.fit();
     // fit/resize 后 WebGL renderer 可能重算 dimensions，再补一次避免窗口缩放后宽度回退。
-    if (container) syncTerminalFontMetrics(term, container);
+    if (container) {
+      syncTerminalFontMetrics(term, container);
+      refreshTerminalFontAtlasAfterFontReady(term, container);
+    }
     return { cols: term.cols, rows: term.rows };
   } catch {
     return null;
@@ -682,7 +739,7 @@ export function applyTerminalFontSize(
 ): { cols: number; rows: number } | null {
   if (term.options.fontSize === fontSize) return null;
   term.options.fontSize = fontSize;
-  refreshTerminalFontAtlasAfterFontReady(term);
+  if (!container) refreshTerminalFontAtlasAfterFontReady(term);
   return safeFit(fitAddon, term, container);
 }
 
@@ -694,6 +751,6 @@ export function applyTerminalFontFamily(
 ): { cols: number; rows: number } | null {
   if (term.options.fontFamily === fontFamily) return null;
   term.options.fontFamily = fontFamily;
-  refreshTerminalFontAtlasAfterFontReady(term);
+  if (!container) refreshTerminalFontAtlasAfterFontReady(term);
   return safeFit(fitAddon, term, container);
 }
