@@ -27,6 +27,7 @@ import {
   normalizeSendShortcut,
   type SendShortcut,
 } from "../shortcuts";
+import { windowDragPassthrough, windowDragRegion } from "../windowDrag";
 import claudeGif from "../assets/gif/claude.gif";
 import codexGif from "../assets/gif/codex.gif";
 import s from "../styles";
@@ -423,13 +424,13 @@ export function NewTaskView({
   return (
     <div style={s.newTaskOuter}>
       {/* Header */}
-      <div style={s.newTaskHeader}>
+      <div {...windowDragRegion} style={s.newTaskHeader}>
         <img
           src={agent === "claude" ? claudeGif : codexGif}
           alt=""
-          style={s.newTaskClaudeGif}
+          style={{ ...s.newTaskClaudeGif, ...windowDragPassthrough }}
         />
-        <span style={s.newTaskTitle}>{t("newTask.title")}</span>
+        <span style={{ ...s.newTaskTitle, ...windowDragPassthrough }}>{t("newTask.title")}</span>
       </div>
 
       {/* Missing context file warning */}

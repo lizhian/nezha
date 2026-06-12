@@ -11,6 +11,7 @@ import { shortenPath, getUsageColor } from "../utils";
 import { useUsageSnapshot } from "../hooks/useUsageSnapshot";
 import { ENABLE_USAGE_INSIGHTS } from "../platform";
 import { useI18n } from "../i18n";
+import { windowDragPassthrough, windowDragRegion } from "../windowDrag";
 import s from "../styles";
 import {
   X,
@@ -255,12 +256,18 @@ export function RunningView({
     >
       {/* Header */}
       <div
+        {...windowDragRegion}
         style={s.runHeader}
         onMouseEnter={() => setHoverHeader(true)}
         onMouseLeave={() => setHoverHeader(false)}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-          <StatusIcon status={task.status} />
+        <div
+          {...windowDragRegion}
+          style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}
+        >
+          <span style={{ display: "inline-flex", ...windowDragPassthrough }}>
+            <StatusIcon status={task.status} />
+          </span>
           {editingTitle ? (
             <input
               ref={titleInputRef}
@@ -304,6 +311,7 @@ export function RunningView({
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
+                ...windowDragPassthrough,
               }}
             >
               {(() => {

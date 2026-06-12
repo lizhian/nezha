@@ -35,6 +35,7 @@ import { ImagePreviewPane } from "./file-viewer/ImagePreviewPane";
 import type { OpenFileTab } from "../hooks/useProjectPanels";
 import type { ThemeVariant } from "../types";
 import { useI18n } from "../i18n";
+import { windowDragRegion } from "../windowDrag";
 
 function isMarkdownFile(fileName: string): boolean {
   const ext = fileName.split(".").pop()?.toLowerCase();
@@ -611,6 +612,7 @@ export function FileViewer({
         }}
       >
         <div
+          {...windowDragRegion}
           className="file-viewer-tab-strip"
           style={{
             flex: 1,

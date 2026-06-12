@@ -10,6 +10,7 @@ import { writeClipboardText } from "./file-explorer/clipboard";
 import { FileExplorerContextMenu } from "./file-explorer/ContextMenu";
 import { CreateInputRow } from "./file-explorer/CreateInputRow";
 import { TreeItem } from "./file-explorer/TreeItem";
+import { windowDragPassthrough, windowDragRegion } from "../windowDrag";
 import {
   AUTO_REFRESH_MS,
   ROW_HEIGHT,
@@ -422,8 +423,10 @@ export function FileExplorer({
         />
       )}
       {/* Header */}
-      <div style={s.fileExplorerHeader}>
-        <span style={s.fileExplorerHeaderTitle}>{t("file.files")}</span>
+      <div {...windowDragRegion} style={s.fileExplorerHeader}>
+        <span style={{ ...s.fileExplorerHeaderTitle, ...windowDragPassthrough }}>
+          {t("file.files")}
+        </span>
         <button
           onClick={() => void refresh()}
           title={t("common.refresh")}
