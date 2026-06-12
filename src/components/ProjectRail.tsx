@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Plus, ChevronsRight, Search, PinOff } from "lucide-react";
 import type { Project, Task } from "../types";
 import { ProjectAvatar } from "./ProjectAvatar";
+import { ProjectStatusDot } from "./ProjectStatusDot";
 import { useI18n } from "../i18n";
 import { APP_PLATFORM } from "../platform";
 import { windowDragRegion } from "../windowDrag";
@@ -63,15 +64,7 @@ function AttentionIndicator({
       <span style={{ ...s.railAttentionBadge, borderColor }}>{count > 99 ? "99+" : count}</span>
     );
   }
-  return (
-    <span
-      style={{
-        ...s.railStatusDot,
-        background: isAttention ? "var(--color-warning)" : "var(--color-success)",
-        borderColor,
-      }}
-    />
-  );
+  return <ProjectStatusDot tone={isAttention ? "warning" : "success"} borderColor={borderColor} />;
 }
 
 function RailItem({
