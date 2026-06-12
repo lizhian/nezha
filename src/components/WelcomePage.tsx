@@ -29,6 +29,7 @@ import { TimelineView } from "./TimelineView";
 import { SkillHubView } from "./skill-hub/SkillHubView";
 import { useI18n, pluralKey } from "../i18n";
 import { APP_PLATFORM } from "../platform";
+import { windowDragRegion } from "../windowDrag";
 import s from "../styles";
 
 const MAC_TRAFFIC_LIGHT_SAFE_TOP = 34;
@@ -240,7 +241,7 @@ export function WelcomePage({
           />
         ) : (
           <div style={s.welcomePane}>
-            <div style={s.searchRow}>
+            <div {...windowDragRegion} style={s.searchRow}>
               <div
                 style={{
                   ...s.searchBox,

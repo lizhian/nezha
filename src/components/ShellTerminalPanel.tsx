@@ -19,6 +19,7 @@ import {
 import { attachLinuxIMEFix, attachMacWebKitShiftInputFix } from "./terminalInputFix";
 import { Plus, Terminal as TerminalIcon, Trash2, X } from "lucide-react";
 import { useI18n } from "../i18n";
+import { windowDragPassthrough, windowDragRegion } from "../windowDrag";
 import "@xterm/xterm/css/xterm.css";
 
 interface ShellOutputEvent {
@@ -376,6 +377,7 @@ export const ShellTerminalPanel = forwardRef<ShellTerminalPanelHandle, Props>(
           />
         )}
         <div
+          {...windowDragRegion}
           style={{
             height: 32,
             flexShrink: 0,
@@ -387,10 +389,18 @@ export const ShellTerminalPanel = forwardRef<ShellTerminalPanelHandle, Props>(
             gap: 8,
           }}
         >
-          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", flex: 1 }}>
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              flex: 1,
+              ...windowDragPassthrough,
+            }}
+          >
             {t("terminal.title")}
           </span>
-          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+          <span style={{ fontSize: 11, color: "var(--text-muted)", ...windowDragPassthrough }}>
             {shells.length}/{MAX_SHELLS}
           </span>
           <button
