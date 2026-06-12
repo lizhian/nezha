@@ -20,6 +20,7 @@ import {
   type GitDirectoryActionTarget,
   useGitFileViewMode,
 } from "./git-view/GitFileBrowser";
+import { windowDragPassthrough, windowDragRegion } from "../windowDrag";
 
 interface GitFileChange {
   path: string;
@@ -328,6 +329,7 @@ export function GitChanges({
     >
       {/* Header */}
       <div
+        {...windowDragRegion}
         style={{
           height: 48,
           display: "flex",
@@ -338,7 +340,15 @@ export function GitChanges({
           gap: 6,
         }}
       >
-        <span style={{ flex: 1, fontSize: 13, fontWeight: 650, color: "var(--text-primary)" }}>
+        <span
+          style={{
+            flex: 1,
+            fontSize: 13,
+            fontWeight: 650,
+            color: "var(--text-primary)",
+            ...windowDragPassthrough,
+          }}
+        >
           {t("git.changes")}
         </span>
         <button

@@ -4,6 +4,7 @@ import type { Project, Task } from "../types";
 import { ProjectAvatar } from "./ProjectAvatar";
 import { useI18n } from "../i18n";
 import { APP_PLATFORM } from "../platform";
+import { windowDragRegion } from "../windowDrag";
 import s from "../styles";
 import claudeWaveGif from "../assets/gif/claude-wave.gif";
 
@@ -377,6 +378,7 @@ export function ProjectRail({
 
   return (
     <div
+      {...windowDragRegion}
       style={{
         position: "relative",
         width: 52,
