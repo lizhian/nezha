@@ -92,7 +92,7 @@ export function TerminalView({
     term.loadAddon(serializeAddon);
     term.open(container);
     const disposeInputFix = attachMacWebKitShiftInputFix(term);
-    loadWebglAddon(term);
+    const webglAddon = loadWebglAddon(term, container);
 
     const size = safeFit(fitAddon, term, container);
     if (size) notifyResize(size.cols, size.rows);
@@ -176,6 +176,7 @@ export function TerminalView({
       }
       onRegisterRef.current(null);
       fitAddonRef.current = null;
+      webglAddon.dispose();
       disposeMacWebKitGuard();
       disposeInputFix();
       disposeSmartCopy();
