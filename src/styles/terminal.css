@@ -1,0 +1,18 @@
+.shell-terminal-tab[data-active="true"] {
+  border-color: var(--border-medium) !important;
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+.shell-terminal-tab[data-active="true"] .shell-terminal-tab-icon {
+  color: var(--control-active-fg) !important;
+}
+
+.shell-terminal-tab[data-active="true"] > div {
+  font-weight: 600 !important;
+}
+
+.shell-terminal-tab-add[data-disabled="true"] {
+  color: var(--text-hint) !important;
+  cursor: not-allowed !important;
+}
