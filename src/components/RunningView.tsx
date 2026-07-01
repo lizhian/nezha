@@ -513,61 +513,56 @@ export function RunningView({
           </button>
         )}
       </div>
-      <div
-        style={{
-          padding: "4px 20px 12px",
-          borderBottom: "1px solid var(--border-dim)",
-          flexShrink: 0,
-        }}
-      >
-        <div style={s.runMetaRow}>
-          <span style={s.runMetaFixed}>
-            {task.agent === "claude" ? "✦ Claude Code" : "⬡ Codex"} ·{" "}
-            {permissionModeLabel(task.permissionMode, task.agent)}
-          </span>
-          {ENABLE_USAGE_INSIGHTS && usageSnapshot && (task.agent === "claude"
-            ? usageSnapshot.claude.status === "available" && (
-                <>
-                  {usageSnapshot.claude.data.fiveHour && (
-                    <><span>·</span><InlineWindow label="5h" window={usageSnapshot.claude.data.fiveHour} /></>
-                  )}
-                  {usageSnapshot.claude.data.sevenDay && (
-                    <><span>·</span><InlineWindow label="7d" window={usageSnapshot.claude.data.sevenDay} /></>
-                  )}
-                </>
-              )
-            : usageSnapshot.codex.status === "available" && (
-                <>
-                  {usageSnapshot.codex.data.primary && (
-                    <><span>·</span><InlineWindow label="5h" window={usageSnapshot.codex.data.primary} /></>
-                  )}
-                  {usageSnapshot.codex.data.secondary && (
-                    <><span>·</span><InlineWindow label="7d" window={usageSnapshot.codex.data.secondary} /></>
-                  )}
-                </>
-              )
-          )}
-          {task.worktreePath && task.worktreeBranch && task.baseBranch && (
-            <>
-              <span style={s.runMetaFixed}>·</span>
-              <span
-                title={t("running.worktreeBranchTitle", {
-                  branch: task.worktreeBranch,
-                  base: task.baseBranch,
-                })}
-                style={s.runMetaBranchInline}
-              >
-                <GitBranch size={11} strokeWidth={2.2} />
-                <span style={s.runMetaBranchText}>
-                  {t("running.worktreeBranchInfo", {
+      <div style={s.runMetaPanel}>
+        <div style={s.runMetaWrap}>
+          <div style={s.runMetaRow}>
+            <span style={s.runMetaFixed}>
+              {task.agent === "claude" ? "✦ Claude Code" : "⬡ Codex"} ·{" "}
+              {permissionModeLabel(task.permissionMode, task.agent)}
+            </span>
+            {ENABLE_USAGE_INSIGHTS && usageSnapshot && (task.agent === "claude"
+              ? usageSnapshot.claude.status === "available" && (
+                  <>
+                    {usageSnapshot.claude.data.fiveHour && (
+                      <><span>·</span><InlineWindow label="5h" window={usageSnapshot.claude.data.fiveHour} /></>
+                    )}
+                    {usageSnapshot.claude.data.sevenDay && (
+                      <><span>·</span><InlineWindow label="7d" window={usageSnapshot.claude.data.sevenDay} /></>
+                    )}
+                  </>
+                )
+              : usageSnapshot.codex.status === "available" && (
+                  <>
+                    {usageSnapshot.codex.data.primary && (
+                      <><span>·</span><InlineWindow label="5h" window={usageSnapshot.codex.data.primary} /></>
+                    )}
+                    {usageSnapshot.codex.data.secondary && (
+                      <><span>·</span><InlineWindow label="7d" window={usageSnapshot.codex.data.secondary} /></>
+                    )}
+                  </>
+                )
+            )}
+            {task.worktreePath && task.worktreeBranch && task.baseBranch && (
+              <>
+                <span style={s.runMetaFixed}>·</span>
+                <span
+                  title={t("running.worktreeBranchTitle", {
                     branch: task.worktreeBranch,
                     base: task.baseBranch,
                   })}
+                  style={s.runMetaBranchInline}
+                >
+                  <GitBranch size={11} strokeWidth={2.2} />
+                  <span style={s.runMetaBranchText}>
+                    {t("running.worktreeBranchInfo", {
+                      branch: task.worktreeBranch,
+                      base: task.baseBranch,
+                    })}
+                  </span>
                 </span>
-              </span>
-            </>
-          )}
-        </div>
+              </>
+            )}
+          </div>
         {(metrics || sessionPath) && (
           <div style={s.runMetricsRow}>
             {metrics && (
@@ -609,6 +604,7 @@ export function RunningView({
             )}
           </div>
         )}
+        </div>
       </div>
 
       {/* Main content: terminal when active, session view when done/failed. */}
