@@ -31,6 +31,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Download,
+  Play,
 } from "lucide-react";
 
 interface SessionMetrics {
@@ -94,6 +95,7 @@ export function RunningView({
   onDiscardWorktree,
   onReconnect,
   onMarkDone,
+  onQuickRun,
   onInput,
   onResize,
   onRegisterTerminal,
@@ -118,6 +120,7 @@ export function RunningView({
   onDiscardWorktree?: () => Promise<void>;
   onReconnect: () => void;
   onMarkDone: () => void;
+  onQuickRun?: () => void;
   onInput: (data: string) => void;
   onResize: (cols: number, rows: number) => void;
   onRegisterTerminal: (writeFn: ((data: string, callback?: () => void) => void) | null) => number;
@@ -423,6 +426,12 @@ export function RunningView({
         </div>
         {isActive && (
           <>
+            {onQuickRun && (
+              <button style={s.quickRunBtn} onClick={onQuickRun}>
+                <Play size={12} strokeWidth={2.5} />
+                <span>{t("running.quickRun")}</span>
+              </button>
+            )}
             <button style={s.doneBtn} onClick={onMarkDone}>
               <CheckCircle2 size={12} strokeWidth={2.5} />
               <span>{t("running.markDone")}</span>

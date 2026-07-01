@@ -28,6 +28,7 @@ import { TodoTaskView } from "./TodoTaskView";
 import { ShellTerminalPanel, type ShellTerminalPanelHandle } from "./ShellTerminalPanel";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { useProjectPanels } from "../hooks/useProjectPanels";
+import { useQuickRun } from "../hooks/useQuickRun";
 import { useI18n } from "../i18n";
 import s from "../styles";
 
@@ -186,6 +187,13 @@ export function ProjectPage({
   } = useProjectPanels();
 
   const [showShellTerminal, setShowShellTerminal] = useState(false);
+  const {
+    script: quickRunScript,
+    state: quickRunState,
+    loadScript: loadQuickRunScript,
+    run: runQuickRun,
+    close: closeQuickRun,
+  } = useQuickRun(project.path);
   const [showSettings, setShowSettings] = useState(false);
   const [showFileSearch, setShowFileSearch] = useState(false);
   const [taskPanelCollapsed, setTaskPanelCollapsed] = useState(false);
@@ -267,6 +275,26 @@ export function ProjectPage({
       pendingCmdRef.current = null;
     }
   }, []);
+
+  const handleQuickRun = useCallback(
+    (task: Task) => {
+      runQuickRun(task);
+      setShowShellTerminal(true);
+    },
+    [runQuickRun],
+  );
+
+  const handleCloseShellTerminal = useCallback(() => {
+    closeQuickRun();
+    setShowShellTerminal(false);
+  }, [closeQuickRun]);
+
+  const handleToggleShellTerminal = useCallback(() => {
+    if (showShellTerminal) {
+      closeQuickRun();
+    }
+    setShowShellTerminal((v) => !v);
+  }, [closeQuickRun, showShellTerminal]);
 
   const handleNewTask = useCallback(() => {
     clearFileAndDiff();
@@ -486,6 +514,7 @@ export function ProjectPage({
                   onDiscardWorktree={() => onDiscardWorktree(task.id)}
                   onReconnect={() => onReconnectTask(task.id)}
                   onMarkDone={() => onMarkTaskDone(task.id)}
+                  onQuickRun={quickRunScript ? () => handleQuickRun(task) : undefined}
                   onInput={(data) => onInput(task.id, data)}
                   onResize={(cols, rows) => onResize(task.id, cols, rows)}
                   onRegisterTerminal={(fn) => onRegisterTerminal(task.id, fn)}
@@ -508,7 +537,17 @@ export function ProjectPage({
             projectPath={project.path}
             projectId={project.id}
             isActive={visible}
-            onClose={() => setShowShellTerminal(false)}
+            onClose={handleCloseShellTerminal}
+            quickRun={
+              quickRunState.visible
+                ? {
+                    projectPath: quickRunState.cwd,
+                    script: quickRunState.script,
+                    runId: quickRunState.runId,
+                  }
+                : undefined
+            }
+            onCloseQuickRun={closeQuickRun}
             themeVariant={themeVariant}
             terminalFontSize={terminalFontSize}
             monoFontFamily={monoFontFamily}
@@ -571,7 +610,7 @@ export function ProjectPage({
         activePanel={rightPanel}
         onToggle={handleTogglePanel}
         terminalActive={showShellTerminal}
-        onToggleTerminal={() => setShowShellTerminal((v) => !v)}
+        onToggleTerminal={handleToggleShellTerminal}
         onOpenSearch={() => setShowFileSearch(true)}
         onOpenSettings={() => setShowSettings(true)}
       />
@@ -585,7 +624,11 @@ export function ProjectPage({
       )}
 
       {showSettings && (
-        <SettingsDialog projectPath={project.path} onClose={() => setShowSettings(false)} />
+        <SettingsDialog
+          projectPath={project.path}
+          onClose={() => setShowSettings(false)}
+          onSaved={loadQuickRunScript}
+        />
       )}
     </div>
   );

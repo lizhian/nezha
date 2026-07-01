@@ -1,5 +1,13 @@
 import type React from "react";
-import { useCallback, useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { Terminal as XTerm } from "@xterm/xterm";
@@ -49,6 +57,12 @@ interface Props {
   projectId: string;
   isActive?: boolean;
   onClose: () => void;
+  quickRun?: {
+    projectPath: string;
+    script: string;
+    runId: number;
+  };
+  onCloseQuickRun?: () => void;
   themeVariant: ThemeVariant;
   terminalFontSize: TerminalFontSize;
   monoFontFamily: FontFamily;
@@ -73,10 +87,20 @@ const ShellTerminalInstance = forwardRef<ShellTerminalInstanceHandle, {
   themeVariant: ThemeVariant;
   terminalFontSize: TerminalFontSize;
   monoFontFamily: FontFamily;
+  initialInput?: string;
   onReady?: () => void;
 }>(
   function ShellTerminalInstance(
-    { shellId, projectPath, isActive, themeVariant, terminalFontSize, monoFontFamily, onReady },
+    {
+      shellId,
+      projectPath,
+      isActive,
+      themeVariant,
+      terminalFontSize,
+      monoFontFamily,
+      initialInput,
+      onReady,
+    },
     ref,
   ) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -167,6 +191,7 @@ const ShellTerminalInstance = forwardRef<ShellTerminalInstanceHandle, {
           projectPath,
           cols: term.cols,
           rows: term.rows,
+          initialInput,
         })
           .then(() => {
             if (cleaned) return;
@@ -249,7 +274,7 @@ const ShellTerminalInstance = forwardRef<ShellTerminalInstanceHandle, {
         term.dispose();
         invoke("kill_shell", { shellId }).catch(() => {});
       };
-    }, [shellId, projectPath]);
+    }, [shellId, projectPath, initialInput]);
 
     useEffect(() => {
       if (!isActive) return;
@@ -344,6 +369,8 @@ export const ShellTerminalPanel = forwardRef<ShellTerminalPanelHandle, Props>(
       projectId,
       isActive = true,
       onClose,
+      quickRun,
+      onCloseQuickRun,
       themeVariant,
       terminalFontSize,
       monoFontFamily,
@@ -363,8 +390,19 @@ export const ShellTerminalPanel = forwardRef<ShellTerminalPanelHandle, Props>(
     const shellRefs = useRef<Record<string, ShellTerminalInstanceHandle | null>>({});
     const [shells, setShells] = useState<ShellSession[]>(() => [initialShellRef.current!]);
     const [activeShellId, setActiveShellId] = useState<string | null>(() => initialShellRef.current!.id);
+    const quickRunShellId = quickRun ? `quick-run:${projectId}:${quickRun.runId}` : null;
+    const quickRunInput = useMemo(() => {
+      if (!quickRun?.script) return "";
+      return quickRun.script.endsWith("\n") ? quickRun.script : `${quickRun.script}\n`;
+    }, [quickRun?.script]);
     const activeShellIdRef = useRef(activeShellId);
     activeShellIdRef.current = activeShellId;
+
+    useEffect(() => {
+      if (quickRunShellId) {
+        setActiveShellId(quickRunShellId);
+      }
+    }, [quickRunShellId]);
 
     useImperativeHandle(
       ref,
@@ -395,6 +433,11 @@ export const ShellTerminalPanel = forwardRef<ShellTerminalPanelHandle, Props>(
         delete shellRefs.current[shellId];
 
         if (nextShells.length === 0) {
+          if (quickRunShellId) {
+            setActiveShellId(quickRunShellId);
+            return;
+          }
+
           onClose();
           return;
         }
@@ -408,8 +451,20 @@ export const ShellTerminalPanel = forwardRef<ShellTerminalPanelHandle, Props>(
           );
         }
       },
-      [activeShellId, onClose, shells],
+      [activeShellId, onClose, quickRunShellId, shells],
     );
+
+    const handleCloseQuickRun = useCallback(() => {
+      onCloseQuickRun?.();
+      if (shells.length === 0) {
+        onClose();
+        return;
+      }
+
+      if (activeShellId === quickRunShellId) {
+        setActiveShellId(shells[0]?.id ?? null);
+      }
+    }, [activeShellId, onClose, onCloseQuickRun, quickRunShellId, shells]);
 
     return (
       <div
@@ -485,6 +540,21 @@ export const ShellTerminalPanel = forwardRef<ShellTerminalPanelHandle, Props>(
                 onReady={onReady}
               />
             ))}
+            {quickRun && quickRunShellId && (
+              <ShellTerminalInstance
+                key={quickRunShellId}
+                ref={(instance) => {
+                  shellRefs.current[quickRunShellId] = instance;
+                }}
+                shellId={quickRunShellId}
+                projectPath={quickRun.projectPath}
+                isActive={isActive && activeShellId === quickRunShellId}
+                themeVariant={themeVariant}
+                terminalFontSize={terminalFontSize}
+                monoFontFamily={monoFontFamily}
+                initialInput={quickRunInput}
+              />
+            )}
           </div>
           <div
             style={{
@@ -530,6 +600,68 @@ export const ShellTerminalPanel = forwardRef<ShellTerminalPanelHandle, Props>(
               </button>
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: "4px 0" }}>
+              {quickRun && quickRunShellId && (
+                <div
+                  onClick={() => setActiveShellId(quickRunShellId)}
+                  style={{
+                    height: 28,
+                    padding: "0 4px 0 8px",
+                    borderLeft:
+                      activeShellId === quickRunShellId
+                        ? "2px solid var(--control-active-fg)"
+                        : "2px solid transparent",
+                    background: activeShellId === quickRunShellId ? "var(--bg-hover)" : "transparent",
+                    color: "var(--text-primary)",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <TerminalIcon
+                    size={13}
+                    color={activeShellId === quickRunShellId ? "var(--control-active-fg)" : "var(--text-hint)"}
+                  />
+                  <div
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                      fontSize: 11.5,
+                      fontWeight: activeShellId === quickRunShellId ? 600 : 500,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      color:
+                        activeShellId === quickRunShellId
+                          ? "var(--text-primary)"
+                          : "var(--text-secondary)",
+                    }}
+                  >
+                    {t("terminal.quickRunTitle")}
+                  </div>
+                  <button
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleCloseQuickRun();
+                    }}
+                    title={t("terminal.closeQuickRun")}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "var(--text-hint)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: 1,
+                      borderRadius: 4,
+                      cursor: "pointer",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              )}
               {shells.map((shell) => {
                 const selected = activeShellId === shell.id;
                 return (
