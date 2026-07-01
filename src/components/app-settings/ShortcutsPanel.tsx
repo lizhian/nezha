@@ -8,12 +8,16 @@ import { APP_PLATFORM } from "../../platform";
 import {
   DEFAULT_SEND_SHORTCUT,
   DEFAULT_SHIFT_ENTER_NEWLINE,
+  DEFAULT_TERMINAL_FONT_SIZE_SHORTCUTS_ENABLED,
   getAltEnterNewlineKeys,
   getNewlineShortcutKeys,
   getSendShortcutKeys,
   getShiftEnterNewlineKeys,
+  getTerminalFontSizeDecreaseKeys,
+  getTerminalFontSizeIncreaseKeys,
   normalizeSendShortcut,
   normalizeShiftEnterNewline,
+  normalizeTerminalFontSizeShortcutsEnabled,
 } from "../../shortcuts";
 import { DEFAULT_TERMINAL_SCROLLBACK } from "../../types";
 import s from "../../styles";
@@ -94,6 +98,15 @@ function normalizeSettings(loaded: AppSettings): AppSettings {
     ...loaded,
     send_shortcut: normalizeSendShortcut(loaded.send_shortcut),
     terminal_shift_enter_newline: normalizeShiftEnterNewline(loaded.terminal_shift_enter_newline),
+    terminal_font_size_shortcuts_enabled: normalizeTerminalFontSizeShortcutsEnabled(
+      loaded.terminal_font_size_shortcuts_enabled,
+    ),
+    claude_force_default_tui:
+      typeof loaded.claude_force_default_tui === "boolean" ? loaded.claude_force_default_tui : true,
+    terminal_scrollback:
+      typeof loaded.terminal_scrollback === "number"
+        ? loaded.terminal_scrollback
+        : DEFAULT_TERMINAL_SCROLLBACK,
   };
 }
 
@@ -104,6 +117,7 @@ export function ShortcutsPanel() {
     codex_path: "",
     send_shortcut: DEFAULT_SEND_SHORTCUT,
     terminal_shift_enter_newline: DEFAULT_SHIFT_ENTER_NEWLINE,
+    terminal_font_size_shortcuts_enabled: DEFAULT_TERMINAL_FONT_SIZE_SHORTCUTS_ENABLED,
     claude_force_default_tui: true,
     terminal_scrollback: DEFAULT_TERMINAL_SCROLLBACK,
   });
@@ -151,6 +165,12 @@ export function ShortcutsPanel() {
     void persist("save_shift_enter_newline", { enabled });
   }
 
+  function handleTerminalFontSizeShortcutsToggle() {
+    const enabled = !settings.terminal_font_size_shortcuts_enabled;
+    setSettings((prev) => ({ ...prev, terminal_font_size_shortcuts_enabled: enabled }));
+    void persist("save_terminal_font_size_shortcuts_enabled", { enabled });
+  }
+
   const sendShortcutOptions: ShortcutOption[] = [
     {
       value: "mod_enter",
@@ -166,6 +186,7 @@ export function ShortcutsPanel() {
   const sendShortcutKeys = getSendShortcutKeys(settings.send_shortcut, APP_PLATFORM);
   const newlineShortcutKeys = getNewlineShortcutKeys(settings.send_shortcut, APP_PLATFORM);
   const shiftEnterEnabled = settings.terminal_shift_enter_newline;
+  const terminalFontSizeShortcutsEnabled = settings.terminal_font_size_shortcuts_enabled;
 
   const terminalNewlineHint = (
     <>
@@ -181,6 +202,16 @@ export function ShortcutsPanel() {
       <span style={s.shortcutHintSep}>/</span>
       {renderShortcutKeys(newlineShortcutKeys, s.shortcutHintKey)}
       <span>{t("newTask.newLine")}</span>
+    </>
+  );
+
+  const terminalFontSizeHint = (
+    <>
+      {renderShortcutKeys(getTerminalFontSizeIncreaseKeys(APP_PLATFORM), s.shortcutHintKey)}
+      <span>{t("appSettings.terminalFontSizeIncrease")}</span>
+      <span style={s.shortcutHintSep}>/</span>
+      {renderShortcutKeys(getTerminalFontSizeDecreaseKeys(APP_PLATFORM), s.shortcutHintKey)}
+      <span>{t("appSettings.terminalFontSizeDecrease")}</span>
     </>
   );
 
@@ -219,6 +250,36 @@ export function ShortcutsPanel() {
               </span>
             </button>
             <div style={s.shortcutHint}>{terminalNewlineHint}</div>
+          </div>
+          <div style={s.shortcutField}>
+            <label style={s.shortcutFieldLabel}>{t("appSettings.terminalFontSizeShortcuts")}</label>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={terminalFontSizeShortcutsEnabled}
+              aria-label={t("appSettings.terminalFontSizeShortcuts")}
+              disabled={saving}
+              onClick={handleTerminalFontSizeShortcutsToggle}
+              style={saving ? { ...s.shortcutToggle, ...s.shortcutToggleDisabled } : s.shortcutToggle}
+            >
+              <span style={s.shortcutToggleKeys}>
+                {renderShortcutKeys(getTerminalFontSizeIncreaseKeys(APP_PLATFORM))}
+              </span>
+              <span
+                style={
+                  terminalFontSizeShortcutsEnabled ? s.shortcutSwitchTrackOn : s.shortcutSwitchTrack
+                }
+              >
+                <span
+                  style={
+                    terminalFontSizeShortcutsEnabled
+                      ? s.shortcutSwitchThumbOn
+                      : s.shortcutSwitchThumb
+                  }
+                />
+              </span>
+            </button>
+            <div style={s.shortcutHint}>{terminalFontSizeHint}</div>
           </div>
         </div>
       )}
