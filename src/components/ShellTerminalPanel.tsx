@@ -22,6 +22,7 @@ import {
   unregisterActiveTerminal,
 } from "./terminalShared";
 import { attachLinuxIMEFix, attachMacWebKitShiftInputFix } from "./terminalInputFix";
+import { attachTerminalFilePaste } from "./terminalFilePaste";
 import { Plus, Terminal as TerminalIcon, Trash2, X } from "lucide-react";
 import { useI18n } from "../i18n";
 import "@xterm/xterm/css/xterm.css";
@@ -183,6 +184,15 @@ const ShellTerminalInstance = forwardRef<ShellTerminalInstanceHandle, {
       }, 50);
 
       const disposeSmartCopy = attachSmartCopy(term);
+      const disposeFilePaste = attachTerminalFilePaste({
+        container,
+        projectPath,
+        taskId: shellId,
+        onInput: (data) => {
+          invoke("send_input", { taskId: shellId, data }).catch(() => {});
+        },
+        onError: console.error,
+      });
       const linuxIME = attachLinuxIMEFix(term, (data) => {
         invoke("send_input", { taskId: shellId, data }).catch(() => {});
       });
@@ -236,6 +246,7 @@ const ShellTerminalInstance = forwardRef<ShellTerminalInstanceHandle, {
         }
         unlisten?.();
         disposeSmartCopy();
+        disposeFilePaste();
         disposeOnData.dispose();
         resizeObserver.disconnect();
         document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -247,7 +258,7 @@ const ShellTerminalInstance = forwardRef<ShellTerminalInstanceHandle, {
         disposeMacWebKitGuard();
         disposeInputFix();
         term.dispose();
-        invoke("kill_shell", { shellId }).catch(() => {});
+        invoke("kill_shell", { shellId, projectPath }).catch(() => {});
       };
     }, [shellId, projectPath]);
 
