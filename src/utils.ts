@@ -1,3 +1,5 @@
+import { NERD_DIRECTORY_ICONS, NERD_EXTENSION_ICONS, NERD_FILENAME_ICONS } from "./fileIcons";
+
 export const AVATAR_COLORS: [string, string][] = [
   ["#2563D6", "#1E4FA8"],
   ["#4F63D7", "#3F46A6"],
@@ -88,8 +90,7 @@ export function getFileColor(name: string, ext?: string): string {
   const e = ext ?? (name.includes(".") ? name.split(".").pop()!.toLowerCase() : "");
 
   if (n === "dockerfile" || n.startsWith("dockerfile.")) return "var(--icon-file-docker)";
-  if (n === "makefile" || n === "gnumakefile" || n === "justfile")
-    return "var(--icon-file-build)";
+  if (n === "makefile" || n === "gnumakefile" || n === "justfile") return "var(--icon-file-build)";
   if (n === "gemfile" || n === "rakefile") return "var(--icon-file-ruby)";
   if (n.startsWith(".git") || n.startsWith(".docker") || n === ".editorconfig" || n === ".npmrc")
     return "var(--icon-file-config)";
@@ -148,6 +149,66 @@ export function getFileColor(name: string, ext?: string): string {
     default:
       return "var(--icon-file-default)";
   }
+}
+
+export function getFileIconGlyph(
+  name: string,
+  ext?: string,
+  isDir = false,
+  expanded = false,
+): string {
+  if (isDir)
+    return expanded
+      ? "\uf115"
+      : (NERD_DIRECTORY_ICONS[name] ?? NERD_DIRECTORY_ICONS[name.toLowerCase()] ?? "\ue5ff");
+
+  const n = name.toLowerCase();
+  const e = ext ?? (name.includes(".") ? name.split(".").pop()!.toLowerCase() : "");
+  if (n.startsWith(".env.")) return NERD_EXTENSION_ICONS.env ?? "\uf462";
+  return NERD_FILENAME_ICONS[name] ?? NERD_FILENAME_ICONS[n] ?? NERD_EXTENSION_ICONS[e] ?? "\uf15b";
+}
+
+const NERD_FONT_TEST_GLYPH = "\ue7a8";
+const nerdFontSupportCache = new Map<string, boolean>();
+
+export function supportsNerdFontGlyphs(): boolean {
+  if (typeof document === "undefined") return false;
+
+  const fontFamily =
+    getComputedStyle(document.body).getPropertyValue("--font-ui").trim() ||
+    getComputedStyle(document.body).fontFamily;
+  const cacheKey = fontFamily || "default";
+  const cached = nerdFontSupportCache.get(cacheKey);
+  if (cached !== undefined) return cached;
+
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) return false;
+
+  canvas.width = 48;
+  canvas.height = 48;
+
+  const drawGlyph = (glyph: string) => {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "#000";
+    context.textBaseline = "top";
+    context.font = `28px ${fontFamily}`;
+    context.fillText(glyph, 8, 8);
+    return Array.from(context.getImageData(0, 0, canvas.width, canvas.height).data);
+  };
+
+  const glyphPixels = drawGlyph(NERD_FONT_TEST_GLYPH);
+  const replacementPixels = drawGlyph("\ufffd");
+  const boxPixels = drawGlyph("\u25a1");
+  const glyphWidth = context.measureText(NERD_FONT_TEST_GLYPH).width;
+
+  const differsFrom = (other: number[]) =>
+    glyphPixels.some((value, index) => value !== other[index]);
+  const hasInk = glyphPixels.some((value, index) => index % 4 === 3 && value > 0);
+  const supported =
+    glyphWidth > 0 && hasInk && differsFrom(replacementPixels) && differsFrom(boxPixels);
+  nerdFontSupportCache.set(cacheKey, supported);
+  return supported;
 }
 
 // ── 文件类型扩展名集合 ────────────────────────────────────────────────────────

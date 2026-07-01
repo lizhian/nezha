@@ -1,5 +1,5 @@
 import s from "../../styles";
-import { getFileColor } from "../../utils";
+import { getFileColor, getFileIconGlyph, supportsNerdFontGlyphs } from "../../utils";
 import { GITIGNORED_COLOR } from "./types";
 
 export function FileIcon({
@@ -15,15 +15,20 @@ export function FileIcon({
   expanded?: boolean;
   isGitignored?: boolean;
 }) {
+  const supportsNerdFont = supportsNerdFontGlyphs();
+
   if (isDir) {
     const folderColor = isGitignored
       ? GITIGNORED_COLOR
       : expanded
         ? "var(--icon-folder-open)"
         : "var(--icon-folder)";
+    const folderStyle = { ...s.fileIconFolder, color: folderColor };
     return (
-      <span style={{ ...s.fileIconFolder, color: folderColor }}>
-        {expanded ? (
+      <span style={folderStyle}>
+        {supportsNerdFont ? (
+          getFileIconGlyph(name, ext, true, expanded)
+        ) : expanded ? (
           <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
             <path d="M1 3.5A1.5 1.5 0 012.5 2h3.764c.58 0 1.12.34 1.342.87l.496 1.13H13.5A1.5 1.5 0 0115 5.5v7A1.5 1.5 0 0113.5 14h-11A1.5 1.5 0 011 12.5v-9z" />
           </svg>
@@ -36,5 +41,11 @@ export function FileIcon({
     );
   }
   const color = isGitignored ? GITIGNORED_COLOR : getFileColor(name, ext);
-  return <span style={{ ...s.fileIconFile, background: color }} />;
+  const fileStyle = { ...s.fileIconFile, color };
+  const fallbackStyle = { ...s.fileIconFileFallback, background: color };
+  return supportsNerdFont ? (
+    <span style={fileStyle}>{getFileIconGlyph(name, ext)}</span>
+  ) : (
+    <span style={fallbackStyle} />
+  );
 }
