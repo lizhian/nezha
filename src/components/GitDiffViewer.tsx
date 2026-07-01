@@ -7,6 +7,7 @@ import { parseDiff } from "./git-diff/parse";
 import type { DiffViewMode } from "./git-diff/types";
 import { load, save } from "../utils";
 import { useI18n } from "../i18n";
+import { windowDragRegion } from "../windowDrag";
 import s from "../styles";
 
 const VIEW_MODE_KEY = "nezha.diffViewMode";
@@ -120,9 +121,11 @@ export function GitDiffViewer({
 
   return (
     <div style={s.diffViewer}>
-      <div style={s.diffHeader}>
-        <FileCode size={15} color="var(--text-muted)" />
-        <div style={s.diffHeaderTitleWrap}>
+      <div {...windowDragRegion} style={s.diffHeader}>
+        <span style={s.windowDragInlinePassthrough}>
+          <FileCode size={15} color="var(--text-muted)" />
+        </span>
+        <div style={s.diffHeaderTitleWrapDragPassthrough}>
           <div style={s.diffHeaderTitle}>{title}</div>
           <div style={s.diffHeaderMeta}>
             <span>

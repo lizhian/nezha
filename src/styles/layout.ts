@@ -24,6 +24,9 @@ export const layout = {
     flexDirection: "column",
     padding: "18px 14px 14px",
   },
+  sidebarMacTitlebarInset: {
+    paddingTop: 34,
+  },
   sidebarBrand: {
     display: "flex",
     alignItems: "center",
@@ -39,6 +42,15 @@ export const layout = {
     background: "var(--brand-mark-gradient)",
     padding: 4,
     boxShadow: "0 10px 20px var(--brand-mark-glow)",
+  },
+  sidebarBrandIconDragPassthrough: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    background: "var(--brand-mark-gradient)",
+    padding: 4,
+    boxShadow: "0 10px 20px var(--brand-mark-glow)",
+    pointerEvents: "none",
   },
   sidebarBrandBadge: {
     display: "flex",

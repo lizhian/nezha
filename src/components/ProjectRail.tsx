@@ -1,6 +1,8 @@
 import { useCallback, useState, useEffect, useMemo, useRef } from "react";
 import type { Project, Task } from "../types";
 import { ProjectAvatar } from "./ProjectAvatar";
+import { APP_PLATFORM } from "../platform";
+import { windowDragRegion } from "../windowDrag";
 import {
   RAIL_ITEM_SIZE,
   RAIL_ITEM_STRIDE,
@@ -25,6 +27,8 @@ import {
 } from "./project-rail/drag";
 
 export { projectMatchesRailSearch } from "./project-rail/search";
+
+const MAC_TRAFFIC_LIGHT_SAFE_TOP = 26;
 
 export function ProjectRail({
   projects,
@@ -285,6 +289,7 @@ export function ProjectRail({
   return (
     <div
       ref={railContainerRef}
+      {...windowDragRegion}
       style={{
         position: "relative",
         width: 52,
@@ -294,7 +299,10 @@ export function ProjectRail({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        paddingTop: RAIL_PADDING_TOP,
+        paddingTop:
+          APP_PLATFORM === "macos"
+            ? RAIL_PADDING_TOP + MAC_TRAFFIC_LIGHT_SAFE_TOP
+            : RAIL_PADDING_TOP,
         paddingBottom: 10,
         gap: 5,
         overflow: "visible",

@@ -121,6 +121,16 @@ export const task = {
     whiteSpace: "nowrap",
     flex: 1,
   },
+  panelProjectNameDragPassthrough: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: "var(--text-primary)",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    flex: 1,
+    pointerEvents: "none",
+  },
   panelSearchWrap: {
     display: "flex",
     alignItems: "center",

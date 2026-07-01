@@ -18,6 +18,7 @@ import { FileExplorerContextMenu } from "./file-explorer/ContextMenu";
 import { CreateInputRow } from "./file-explorer/CreateInputRow";
 import { FileIcon } from "./file-explorer/FileIcon";
 import { TreeItem } from "./file-explorer/TreeItem";
+import { windowDragRegion } from "../windowDrag";
 import { dispatchFileTreePointerDrag } from "./pathDrop";
 import {
   AUTO_REFRESH_MS,
@@ -586,8 +587,10 @@ export function FileExplorer({
         />
       )}
       {/* Header */}
-      <div style={s.fileExplorerHeader}>
-        <span style={s.fileExplorerHeaderTitle}>{t("file.files")}</span>
+      <div {...windowDragRegion} style={s.fileExplorerHeader}>
+        <span style={s.fileExplorerHeaderTitleDragPassthrough}>
+          {t("file.files")}
+        </span>
         <button
           onClick={() => void refresh()}
           title={t("common.refresh")}

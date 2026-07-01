@@ -24,6 +24,7 @@ import { SidebarFooterActions } from "./SidebarFooterActions";
 import { BranchBar } from "./task-panel/BranchBar";
 import { TaskList } from "./task-panel/TaskList";
 import { useI18n } from "../i18n";
+import { windowDragRegion } from "../windowDrag";
 import s from "../styles";
 
 export function TaskPanel({
@@ -146,12 +147,12 @@ export function TaskPanel({
   return (
     <div style={s.taskPanel}>
       {/* Project header */}
-      <div style={s.panelHeader}>
+      <div {...windowDragRegion} style={s.panelHeader}>
         <button style={s.backBtn} onClick={onBack} title={backTitle ?? t("task.switchProject")}>
           <ChevronLeft size={15} strokeWidth={2} />
         </button>
-        <ProjectAvatar name={project.name} size={22} />
-        <span style={s.panelProjectName}>{project.name}</span>
+        <ProjectAvatar name={project.name} size={22} style={s.windowDragPassthrough} />
+        <span style={s.panelProjectNameDragPassthrough}>{project.name}</span>
         <button
           type="button"
           style={s.panelCollapseBtn}

@@ -17,6 +17,8 @@ import {
   GitFileViewToggle,
   useGitFileViewMode,
 } from "./git-view/GitFileBrowser";
+import { windowDragRegion } from "../windowDrag";
+import s from "../styles";
 
 interface GitCommit {
   hash: string;
@@ -245,6 +247,7 @@ export function GitHistory({ projectPath, onCommitSelect, onFileClick, width = 2
         }}
       >
         <div
+          {...windowDragRegion}
           style={{
             height: 48,
             display: "flex",
@@ -253,7 +256,7 @@ export function GitHistory({ projectPath, onCommitSelect, onFileClick, width = 2
             gap: 4,
           }}
         >
-          <span style={{ fontSize: 13, fontWeight: 650, color: "var(--text-primary)", flex: 1 }}>
+          <span style={s.gitPanelTitleDragPassthrough}>
             {t("git.history")}
           </span>
 

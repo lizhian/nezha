@@ -37,6 +37,14 @@ export const panels = {
     marginBottom: 10,
     objectFit: "contain",
   },
+  newTaskClaudeGifDragPassthrough: {
+    display: "block",
+    width: "min(128px, 32vw)",
+    height: "auto",
+    marginBottom: 10,
+    objectFit: "contain",
+    pointerEvents: "none",
+  },
   newTaskTitle: {
     display: "block",
     fontSize: 22,
@@ -44,6 +52,22 @@ export const panels = {
     color: "var(--text-primary)",
     letterSpacing: -0.3,
     marginBottom: 8,
+  },
+  newTaskTitleDragPassthrough: {
+    display: "block",
+    fontSize: 22,
+    fontWeight: 700,
+    color: "var(--text-primary)",
+    letterSpacing: -0.3,
+    marginBottom: 8,
+    pointerEvents: "none",
+  },
+  newTaskWindowDragStrip: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 48,
   },
   newTaskMeta: {
     display: "inline-flex",
@@ -568,6 +592,15 @@ export const panels = {
     letterSpacing: 0.7,
     textTransform: "uppercase" as const,
     flex: 1,
+  },
+  fileExplorerHeaderTitleDragPassthrough: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: "var(--text-hint)",
+    letterSpacing: 0.7,
+    textTransform: "uppercase" as const,
+    flex: 1,
+    pointerEvents: "none",
   },
   fileExplorerRefreshBtn: {
     background: "none",

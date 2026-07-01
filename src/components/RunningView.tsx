@@ -19,6 +19,7 @@ import { getUsageColor } from "../utils";
 import { useUsageSnapshot } from "../hooks/useUsageSnapshot";
 import { ENABLE_USAGE_INSIGHTS } from "../platform";
 import { useI18n } from "../i18n";
+import { windowDragRegion } from "../windowDrag";
 import s from "../styles";
 import {
   X,
@@ -316,12 +317,18 @@ export function RunningView({
     >
       {/* Header */}
       <div
+        {...windowDragRegion}
         style={s.runHeader}
         onMouseEnter={() => setHoverHeader(true)}
         onMouseLeave={() => setHoverHeader(false)}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-          <StatusIcon status={task.status} />
+        <div
+          {...windowDragRegion}
+          style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}
+        >
+          <span style={s.windowDragInlinePassthrough}>
+            <StatusIcon status={task.status} />
+          </span>
           {editingTitle ? (
             <input
               ref={titleInputRef}
@@ -358,14 +365,7 @@ export function RunningView({
             />
           ) : (
             <span
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: "var(--text-primary)",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
+              style={s.runTitleDragPassthrough}
             >
               {(() => {
                 const t = task.name ?? task.prompt;
