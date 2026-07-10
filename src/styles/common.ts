@@ -1,6 +1,13 @@
 import type React from "react";
 
 export const common = {
+  windowDragPassthrough: {
+    pointerEvents: "none",
+  },
+  windowDragInlinePassthrough: {
+    display: "inline-flex",
+    pointerEvents: "none",
+  },
   errorBoundaryWrap: {
     flex: 1,
     display: "flex",

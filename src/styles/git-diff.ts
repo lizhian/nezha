@@ -34,6 +34,7 @@ export const gitDiff = {
     background: "var(--bg-panel)",
   },
   diffHeaderTitleWrap: { flex: 1, minWidth: 0 },
+  diffHeaderTitleWrapDragPassthrough: { flex: 1, minWidth: 0, pointerEvents: "none" },
   diffHeaderTitle: {
     fontSize: 13.5,
     fontWeight: 700,
@@ -52,6 +53,13 @@ export const gitDiff = {
   },
   diffAddCount: { color: "var(--diff-add-fg)", fontWeight: 650 },
   diffDeleteCount: { color: "var(--diff-delete-fg)", fontWeight: 650 },
+  gitPanelTitleDragPassthrough: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: 650,
+    color: "var(--text-primary)",
+    pointerEvents: "none",
+  },
   diffViewToggle: {
     display: "inline-flex",
     alignItems: "center",

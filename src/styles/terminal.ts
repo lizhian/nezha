@@ -21,6 +21,27 @@ export const terminal = {
     gap: 10,
     flexShrink: 0,
   },
+  runTitleDragPassthrough: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: "var(--text-primary)",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap" as const,
+    pointerEvents: "none",
+  },
+  shellPanelTitleDragPassthrough: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: "var(--text-primary)",
+    flex: 1,
+    pointerEvents: "none",
+  },
+  shellPanelCountDragPassthrough: {
+    fontSize: 11,
+    color: "var(--text-muted)",
+    pointerEvents: "none",
+  },
   runMetaRow: {
     display: "flex",
     alignItems: "center",

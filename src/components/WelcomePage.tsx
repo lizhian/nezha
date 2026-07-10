@@ -29,6 +29,8 @@ import { OPEN_APP_SETTINGS_EVENT } from "./app-settings/types";
 import { TimelineView } from "./TimelineView";
 import { SkillHubView } from "./skill-hub/SkillHubView";
 import { useI18n, pluralKey } from "../i18n";
+import { APP_PLATFORM } from "../platform";
+import { windowDragRegion } from "../windowDrag";
 import s from "../styles";
 
 function SidebarItem({
@@ -159,12 +161,17 @@ export function WelcomePage({
   return (
     <div style={s.welcomeBody}>
       <div style={s.welcomeMain}>
-        <div style={s.sidebar}>
-          <div style={s.sidebarBrand}>
-            <div style={s.sidebarBrandIcon}>
+        <div
+          style={{
+            ...s.sidebar,
+            ...(APP_PLATFORM === "macos" ? s.sidebarMacTitlebarInset : undefined),
+          }}
+        >
+          <div {...windowDragRegion} style={s.sidebarBrand}>
+            <div style={s.sidebarBrandIconDragPassthrough}>
               <span style={s.sidebarBrandBadge}>NZ</span>
             </div>
-            <div>
+            <div style={s.windowDragPassthrough}>
               <div style={s.sidebarBrandTitle}>Nezha</div>
               <div style={s.sidebarBrandMeta}>{t("welcome.agentWorkspace")}</div>
             </div>
@@ -239,7 +246,7 @@ export function WelcomePage({
           />
         ) : (
           <div style={s.welcomePane}>
-            <div style={s.searchRow}>
+            <div {...windowDragRegion} style={s.searchRow}>
               <div
                 style={{
                   ...s.searchBox,

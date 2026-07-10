@@ -17,6 +17,7 @@ import {
   GitFileViewToggle,
   useGitFileViewMode,
 } from "./git-view/GitFileBrowser";
+import { windowDragRegion } from "../windowDrag";
 
 interface GitCommit {
   hash: string;
@@ -230,8 +231,10 @@ export function GitHistory({ projectPath, onCommitSelect, onFileClick, width = 2
     >
       {/* Header */}
       <div className="git-history-header">
-        <div className="git-history-titlebar">
-          <span className="git-history-title">{t("git.history")}</span>
+        <div {...windowDragRegion} className="git-history-titlebar">
+          <span className="git-history-title git-history-title-drag-passthrough">
+            {t("git.history")}
+          </span>
 
           <button
             type="button"

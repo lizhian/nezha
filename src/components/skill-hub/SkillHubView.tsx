@@ -7,6 +7,7 @@ import { useI18n } from "../../i18n";
 import { SKILL_HUB_CHANGED_EVENT } from "../app-settings/types";
 import { shortenPath } from "../../utils";
 import { SkillManageDialog } from "./SkillManageDialog";
+import { windowDragRegion } from "../../windowDrag";
 import s from "../../styles";
 
 interface Props {
@@ -109,10 +110,10 @@ export function SkillHubView({ config, allProjects, onEnterSkillHub, onOpenAppSe
 
   return (
     <div style={s.skillHubBody}>
-      <div style={s.skillHubHeader}>
-        <div style={s.skillHubHeaderMain}>
-          <div style={s.skillHubHeaderTitle}>{t("skill.header.title")}</div>
-          <div style={s.skillHubHeaderPath} title={config.hubPath}>
+      <div {...windowDragRegion} style={s.skillHubHeader}>
+        <div {...windowDragRegion} style={s.skillHubHeaderMain}>
+          <div {...windowDragRegion} style={s.skillHubHeaderTitle}>{t("skill.header.title")}</div>
+          <div {...windowDragRegion} style={s.skillHubHeaderPath} title={config.hubPath}>
             {shortenPath(config.hubPath)}
           </div>
         </div>

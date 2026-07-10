@@ -30,6 +30,10 @@
   color: var(--text-primary);
 }
 
+.git-history-title-drag-passthrough {
+  pointer-events: none;
+}
+
 .git-history-sync-btn {
   display: inline-flex;
   align-items: center;
