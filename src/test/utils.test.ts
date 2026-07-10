@@ -8,6 +8,7 @@ import {
   getGitStatusColor,
   getGitStatusLabel,
   getFileColor,
+  getFileIconGlyph,
   CODE_EXTS,
 } from "../utils";
 
@@ -159,6 +160,59 @@ describe("getFileColor", () => {
   it("ext 参数优先于从文件名推断的扩展名", () => {
     // 传入 ext="rs" 覆盖从 "foo.ts" 推断的 "ts"
     expect(getFileColor("foo.ts", "rs")).toBe("var(--icon-file-rust)");
+  });
+});
+
+// ── getFileIconGlyph ──────────────────────────────────────────────────────────
+
+describe("getFileIconGlyph", () => {
+  it("文件夹返回 Nerd Font 文件夹图标", () => {
+    expect(getFileIconGlyph("src", undefined, true, false)).toBe("\udb82\udcde");
+    expect(getFileIconGlyph("src", undefined, true, true)).toBe("\uf115");
+    expect(getFileIconGlyph("unknown", undefined, true, false)).toBe("\ue5ff");
+  });
+
+  it("覆盖图标表中的常见文件夹类型", () => {
+    expect(getFileIconGlyph(".git", undefined, true, false)).toBe("\ue5fb");
+    expect(getFileIconGlyph(".github", undefined, true, false)).toBe("\ue5fd");
+    expect(getFileIconGlyph("node_modules", undefined, true, false)).toBe("\ue5fa");
+    expect(getFileIconGlyph("Downloads", undefined, true, false)).toBe("\udb80\ude4d");
+  });
+
+  it("常见文件类型返回 Nerd Font 图标", () => {
+    expect(getFileIconGlyph("App.tsx")).toBe("\ue7ba");
+    expect(getFileIconGlyph("lib.rs")).toBe("\ue68b");
+    expect(getFileIconGlyph("README.md")).toBe("\udb80\udcba");
+    expect(getFileIconGlyph("image.png")).toBe("\uf1c5");
+  });
+
+  it("特殊文件名和 ext 覆盖规则与颜色工具保持一致", () => {
+    expect(getFileIconGlyph("Dockerfile")).toBe("\ue650");
+    expect(getFileIconGlyph(".env")).toBe("\uf462");
+    expect(getFileIconGlyph(".env.production")).toBe("\uf462");
+    expect(getFileIconGlyph("foo.ts", "rs")).toBe("\ue68b");
+  });
+
+  it("覆盖主流前端文件类型", () => {
+    expect(getFileIconGlyph("Component.vue")).toBe("\udb82\udc44");
+    expect(getFileIconGlyph("App.svelte")).toBe("\ue697");
+    expect(getFileIconGlyph("vite.config.ts")).toBe("\ue628");
+    expect(getFileIconGlyph("tailwind.config.ts")).toBe("\ue628");
+  });
+
+  it("覆盖主流后端和运维文件类型", () => {
+    expect(getFileIconGlyph("Main.java")).toBe("\ue256");
+    expect(getFileIconGlyph("main.go")).toBe("\ue65e");
+    expect(getFileIconGlyph("main.tf")).toBe("\udb84\udc62");
+    expect(getFileIconGlyph("docker-compose.yml")).toBe("\ue650");
+    expect(getFileIconGlyph("schema.graphql")).toBe("\ue662");
+  });
+
+  it("覆盖图标表中的 XML 和电子表格文件类型", () => {
+    expect(getFileIconGlyph("pom.xml")).toBe("\ue674");
+    expect(getFileIconGlyph("layout.xml")).toBe("\udb81\uddc0");
+    expect(getFileIconGlyph("data.xls")).toBe("\uf1c3");
+    expect(getFileIconGlyph("data.xlsx")).toBe("\uf1c3");
   });
 });
 

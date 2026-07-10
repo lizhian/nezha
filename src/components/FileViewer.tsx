@@ -4,7 +4,8 @@ import { Marked } from "marked";
 import DOMPurify from "dompurify";
 import * as Popover from "@radix-ui/react-popover";
 import { X, AlertCircle, Eye, PencilLine, MoreHorizontal, List } from "lucide-react";
-import { getFileColor } from "../utils";
+import { getFileColor, getFileIconGlyph, supportsNerdFontGlyphs } from "../utils";
+import s from "../styles";
 import ReactCodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { githubDark, githubLight } from "@uiw/codemirror-theme-github";
 import { solarizedLight } from "@uiw/codemirror-theme-solarized";
@@ -75,7 +76,15 @@ function renderMarkdownWithToc(content: string): { html: string; toc: TocEntry[]
 
 function isPreviewableImageFile(fileName: string): boolean {
   const ext = fileName.split(".").pop()?.toLowerCase();
-  return ext === "png" || ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "webp" || ext === "bmp" || ext === "svg";
+  return (
+    ext === "png" ||
+    ext === "jpg" ||
+    ext === "jpeg" ||
+    ext === "gif" ||
+    ext === "webp" ||
+    ext === "bmp" ||
+    ext === "svg"
+  );
 }
 
 function getLanguageExtension(fileName: string): Extension {
@@ -367,23 +376,24 @@ function FilePreviewPane({
     setSaveStatus("idle");
 
     const loadFile = isPreviewableImage
-      ? invoke<ImagePreviewData>("read_image_preview", { path: filePath, projectPath }).then((preview) => {
-          if (cancelled) return;
-          setImagePreview(preview);
-          setLoading(false);
-        })
+      ? invoke<ImagePreviewData>("read_image_preview", { path: filePath, projectPath }).then(
+          (preview) => {
+            if (cancelled) return;
+            setImagePreview(preview);
+            setLoading(false);
+          },
+        )
       : invoke<string>("read_file_content", { path: filePath, projectPath }).then((nextContent) => {
           if (cancelled) return;
           setContent(nextContent);
           setLoading(false);
         });
 
-    loadFile
-      .catch((err) => {
-        if (cancelled) return;
-        setError(String(err));
-        setLoading(false);
-      });
+    loadFile.catch((err) => {
+      if (cancelled) return;
+      setError(String(err));
+      setLoading(false);
+    });
 
     return () => {
       cancelled = true;
@@ -498,10 +508,7 @@ function FilePreviewPane({
             isMarkdown && previewMode ? (
               <div className="md-preview-pane">
                 <div ref={scrollRef} className="md-preview-scroll">
-                  <div
-                    className="md-preview"
-                    dangerouslySetInnerHTML={{ __html: markdownHtml }}
-                  />
+                  <div className="md-preview" dangerouslySetInnerHTML={{ __html: markdownHtml }} />
                 </div>
                 {toc.length > 0 && (
                   <MarkdownToc toc={toc} activeId={activeHeadingId} onJump={jumpToHeading} />
@@ -540,9 +547,7 @@ function FilePreviewPane({
           gap: 8,
         }}
       >
-        <span
-          style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
-        >
+        <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
           {filePath}
         </span>
         {statusLabel && (
@@ -677,6 +682,7 @@ export function FileViewer({
   const tabMenuCanCloseOthers = tabs.length > 1;
   const tabMenuCanCloseRight = tabMenuIndex !== -1 && tabMenuIndex < tabs.length - 1;
   const tabMenuCanCloseLeft = tabMenuIndex > 0;
+  const supportsNerdFont = supportsNerdFontGlyphs();
 
   return (
     <div
@@ -751,16 +757,13 @@ export function FileViewer({
                   flexShrink: 0,
                 }}
               >
-                <span
-                  style={{
-                    width: 5,
-                    height: 14,
-                    borderRadius: 2,
-                    background: fileColor,
-                    flexShrink: 0,
-                    display: "inline-block",
-                  }}
-                />
+                {supportsNerdFont ? (
+                  <span style={{ ...s.fileViewerTabIcon, color: fileColor }}>
+                    {getFileIconGlyph(tab.name)}
+                  </span>
+                ) : (
+                  <span style={{ ...s.fileViewerTabIconFallback, background: fileColor }} />
+                )}
                 <span
                   style={{
                     overflow: "hidden",
